@@ -13,6 +13,7 @@ const SummaryPage = () => {
   interface Summary {
     date: string;
     topPosts: Post[];
+    summary: string; // Added field for ChatGPT-generated summary
   }
 
   const [summary, setSummary] = useState<Summary[]>([]);
@@ -39,9 +40,10 @@ const SummaryPage = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Top 10 Posts Summary</h1>
-      {summary.map(({ date, topPosts }) => (
+      {summary.map(({ date, topPosts, summary: chatGPTSummary }) => (
         <div key={date} className="mb-8">
           <h2 className="text-xl font-semibold mb-2">{date}</h2>
+          <p className="text-gray-700 mb-4">{chatGPTSummary}</p> {/* Display ChatGPT summary */}
           <ul className="list-disc pl-5">
             {topPosts.map((post) => (
               <li key={post.id}>
