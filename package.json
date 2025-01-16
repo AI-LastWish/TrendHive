@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.14",
+    "@tanstack/react-table": "^8.20.6",
     "axios": "^1.7.9",
     "next": "15.1.4",
     "node-cron": "^3.0.3",
     "pg": "^8.13.1",
     "react": "^19.0.0",
+    "react-datepicker": "^7.6.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {

@@ -1,101 +1,97 @@
-import Image from "next/image";
+"use client";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import DateFilter from '../components/DateFilter';
+import Table from '../components/Table';
+import CardView from '../components/CardView';
 
-export default function Home() {
+interface Post {
+  id: string;          // Primary key
+  title: string;       // Title of the post
+  url: string;         // URL of the post
+  score: number;       // Score of the post
+  created_at: string;  // Timestamp of post creation
+  author: string;      // Author of the post
+}
+
+const columns = [
+  { accessorKey: 'title', header: 'Title' },
+  { accessorKey: 'description', header: 'Description' },
+  { accessorKey: 'date', header: 'Date' },
+];
+
+const Home = () => {
+  const [data, setData] = useState<Post[]>([]);
+  const [filteredData, setFilteredData] = useState<Post[]>([]);
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+  const router = useRouter(); // Next.js navigation hook
+
+  // Fetch posts from the API
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('/api/getPosts');
+        const result = await response.json();
+
+        if (response.ok) {
+          setData(result.posts);
+          setFilteredData(result.posts);
+        } else {
+          console.error('Failed to fetch posts:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handleDateChange = ([start, end]: [Date | null, Date | null]) => {
+    if (start && end) {
+      setFilteredData(
+        data.filter((item) => {
+          const itemDate = new Date(item.created_at); // Use created_at field
+          return itemDate >= start && itemDate <= end;
+        })
+      );
+    } else {
+      setFilteredData(data);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-4">
+        <DateFilter onDateChange={handleDateChange} />
+        <div>
+          <button
+            onClick={() => setViewMode('table')}
+            className={`p-2 mr-2 ${viewMode === 'table' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Table View
+          </button>
+          <button
+            onClick={() => setViewMode('card')}
+            className={`p-2 ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
-            Read our docs
-          </a>
+            Card View
+          </button>
+          <button
+            onClick={() => router.push('/summary')} // Navigate to the Summary page
+            className="p-2 bg-green-500 text-white rounded ml-4"
+          >
+            View Summary
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+      {viewMode === 'table' ? (
+        <Table data={filteredData} columns={columns} />
+      ) : (
+        <CardView data={filteredData} />
+      )}
     </div>
   );
-}
+};
+
+export default Home;
