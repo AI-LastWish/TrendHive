@@ -45,13 +45,13 @@ Key technologies used:
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/AI-LastWish/TrendHive
+   cd TrendHive
 2. Install dependencies:
    ```bash
    npm install
 3. Configure environment variables:
-   Rename the .env.local.example to .env.local and add your key
+   Rename the example.env.local to .env.local and add your key
 4. Start the development server:
    ```bash
    npm run dev
