@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Date Filter and Summary Table Application
 
-## Getting Started
+## Description
 
-First, run the development server:
+This web application allows users to:
+- Filter a dataset of posts by date range using a date picker.
+- Display the filtered results dynamically in a responsive table.
+- View a summarized analysis of the data on a separate page, leveraging the **ChatGPT API** to generate concise, human-readable summaries for the top 10 posts of each day.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Key technologies used:
+- **Next.js 15** (App Router) for modern routing and server-side rendering.
+- **React Table** (`@tanstack/react-table`) for building flexible and performant tables.
+- **React DatePicker** for selecting date ranges.
+- **OpenAI ChatGPT API** for generating high-quality summaries.
+- **Tailwind CSS** for styling.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Dynamic Filtering and Display**:
+   - Users can filter posts by selecting a date range, and the filtered results are displayed in a table.
+   - The table supports dynamic updates and responsive design for different screen sizes.
 
-## Learn More
+2. **Daily Summary Generation**:
+   - The application generates human-readable summaries of the top 10 posts for each day using the **ChatGPT API**.
+   - These summaries provide concise insights into the most significant posts, including their titles, scores, and authors.
 
-To learn more about Next.js, take a look at the following resources:
+3. **Server-Side Rendering (SSR)**:
+   - Data fetching and rendering are handled server-side for better performance and SEO.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Reusable Components**:
+   - Modular design with reusable components like `DateFilter` and `Table`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Steps to Run the Project Locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Prerequisites
+- Node.js (v16 or above)
+- npm or yarn package manager
+- A Supabase project for storing post data (if applicable)
+- OpenAI API Key for generating summaries
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo-name.git
+   cd your-repo-name
+2. Install dependencies:
+   ```bash
+   npm install
+3. Configure environment variables:
+   Rename the .env.local.example to .env.local and add your key
+4. Start the development server:
+   ```bash
+   npm run dev
+5. Open the application in your browser:
+   Visit http://localhost:3000
