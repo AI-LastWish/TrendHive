@@ -38,9 +38,9 @@ const DateFilter = ({ initialData }: { initialData: Post[] }) => {
   }, [startDate, endDate, initialData]);
 
   // Define columns for the table
-  const columns: ColumnDef<Post, any>[] = [
+  const columns: ColumnDef<Post>[] = [
     { accessorKey: "title", header: "Title" },
-    { accessorKey: "url", header: "Url" },
+    { accessorKey: "url", header: "URL" },
     { accessorKey: "score", header: "Score" },
     { accessorKey: "created_at", header: "Date" },
     { accessorKey: "author", header: "Author" },

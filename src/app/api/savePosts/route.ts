@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ message: "Posts saved successfully", data });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error saving posts:", error);
     return NextResponse.json({ error: "Failed to save posts" }, { status: 500 });
   }

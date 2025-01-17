@@ -4,10 +4,26 @@ import OpenAI from "openai";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Ensure this is set in your .env file
+  apiKey: process.env.OPENAI_API_KEY || "", // Ensure this is set in your .env file
 });
 
-async function generateSummaryForDay(date: string, posts: any[]) {
+interface Post {
+  id: string;
+  title: string;
+  url: string;
+  score: number;
+  created_at: string;
+  author: string;
+}
+
+interface Summary {
+  date: string;
+  topPosts: Post[];
+  summary: string;
+}
+
+// Function to generate a summary for a specific day
+async function generateSummaryForDay(date: string, posts: Post[]): Promise<string> {
   const postDetails = posts
     .map((post, index) => `${index + 1}. ${post.title} - Score: ${post.score} by ${post.author}`)
     .join("\n");
@@ -21,24 +37,29 @@ async function generateSummaryForDay(date: string, posts: any[]) {
       max_tokens: 150,
     });
 
-    return response.choices[0]?.message?.content?.trim();
+    return response.choices[0]?.message?.content?.trim() || "No summary available.";
   } catch (error) {
     console.error(`Error generating summary for ${date}:`, error);
     return "Summary generation failed.";
   }
 }
 
+// API Handler
 export async function GET() {
   try {
-    // Fetch all posts
-    const { data, error } = await supabase.from("posts").select("*");
+    // Fetch all posts from Supabase
+    const { data: posts, error } = await supabase.from("posts").select("*");
 
     if (error) {
       throw error;
     }
 
+    if (!posts) {
+      return NextResponse.json({ error: "No posts available" }, { status: 404 });
+    }
+
     // Group posts by day
-    const groupedByDay = data.reduce((acc: Record<string, any[]>, post: any) => {
+    const groupedByDay = posts.reduce<Record<string, Post[]>>((acc, post) => {
       const date = new Date(post.created_at).toISOString().split("T")[0];
       if (!acc[date]) {
         acc[date] = [];
@@ -48,11 +69,9 @@ export async function GET() {
     }, {});
 
     // Generate summaries for each day
-    const summary = await Promise.all(
+    const summary: Summary[] = await Promise.all(
       Object.entries(groupedByDay).map(async ([date, posts]) => {
-        const topPosts = posts
-          .sort((a: any, b: any) => b.score - a.score)
-          .slice(0, 10);
+        const topPosts = posts.sort((a, b) => b.score - a.score).slice(0, 10);
         const chatGPTSummary = await generateSummaryForDay(date, topPosts);
         return { date, topPosts, summary: chatGPTSummary };
       })

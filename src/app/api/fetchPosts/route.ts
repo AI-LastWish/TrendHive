@@ -5,6 +5,32 @@ import { NextResponse } from "next/server";
 const REDDIT_AUTH_URL = "https://www.reddit.com/api/v1/access_token";
 const REDDIT_API_URL = "https://oauth.reddit.com";
 
+interface RedditPostData {
+  id: string;
+  title: string;
+  url: string;
+  score: number;
+  created_utc: number; // Unix timestamp
+  author: string;
+}
+
+interface RedditApiResponse {
+  data: {
+    children: {
+      data: RedditPostData;
+    }[];
+  };
+}
+
+interface Post {
+  id: string;
+  title: string;
+  url: string;
+  score: number;
+  created_at: string;
+  author: string;
+}
+
 export async function GET() {
   const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } = process.env;
 
@@ -37,7 +63,7 @@ export async function GET() {
     const accessToken = tokenResponse.data.access_token;
 
     // Fetch top 10 posts from r/singapore
-    const postsResponse = await axios.get(
+    const postsResponse = await axios.get<RedditApiResponse>(
       `${REDDIT_API_URL}/r/singapore/top`,
       {
         headers: {
@@ -51,16 +77,17 @@ export async function GET() {
       }
     );
 
-    const posts = postsResponse.data.data.children.map((post: any) => ({
-      id: post.data.id,
-      title: post.data.title,
-      url: post.data.url,
-      score: post.data.score,
-      created_at: new Date(post.data.created_utc * 1000).toISOString(), // Convert to ISO timestamp
-      author: post.data.author,
+    // Map Reddit posts to your Post schema
+    const posts: Post[] = postsResponse.data.data.children.map(({ data: post }) => ({
+      id: post.id,
+      title: post.title,
+      url: post.url,
+      score: post.score,
+      created_at: new Date(post.created_utc * 1000).toISOString(), // Convert to ISO timestamp
+      author: post.author,
     }));
 
-    // Save posts using Supabase REST API
+    // Save posts using Supabase
     const { data, error } = await supabase.from("posts").upsert(posts, {
       onConflict: "id", // Avoid inserting duplicates
     });
@@ -74,8 +101,18 @@ export async function GET() {
     }
 
     return NextResponse.json({ message: "Posts fetched and saved successfully", data });
-  } catch (error: any) {
-    console.error("Reddit API Error:", error.response?.data || error.message);
-    return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
+  } catch (error) {
+    // Safely handle Axios errors
+    if (axios.isAxiosError(error)) {
+      console.error("Reddit API Error:", error.response?.data || error.message);
+      return NextResponse.json(
+        { error: error.response?.data || "Failed to fetch posts" },
+        { status: error.response?.status || 500 }
+      );
+    }
+
+    // Handle non-Axios errors
+    console.error("Unexpected Error:", error);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 }

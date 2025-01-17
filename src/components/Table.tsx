@@ -4,9 +4,15 @@ import {
   getCoreRowModel,
   ColumnDef,
   flexRender,
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
 
-const Table = ({ data, columns }: { data: any[]; columns: ColumnDef<any, any>[] }) => {
+// Define the generic type for the table row data
+interface TableProps<TData> {
+  data: TData[];
+  columns: ColumnDef<TData, unknown>[]; // Replaced `any` with `unknown`
+}
+
+const Table = <TData,>({ data, columns }: TableProps<TData>) => {
   const table = useReactTable({
     data,
     columns,
