@@ -3,6 +3,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import "./server"; // Replace `require` with an ES module import
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,15 +32,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 flex flex-col min-h-screen`}
-      >
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 flex flex-col min-h-screen`}
+        >
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
 
@@ -48,18 +57,30 @@ function Header() {
           </span>
           <h1 className="text-2xl font-semibold">TrendHive</h1>
         </Link>
+
         {/* Navigation */}
-        <nav>
-          <ul className="flex items-center space-x-6 text-lg">
-            <li>
-              <Link
-                href="/summary"
-                className="hover:text-blue-300 transition duration-300"
-              >
-                Summary
-              </Link>
-            </li>
-          </ul>
+        <nav className="flex items-center space-x-6 text-lg">
+          <SignedIn>
+            <Link
+              href="/summary"
+              className="hover:text-blue-300 transition duration-300"
+            >
+              Summary
+            </Link>
+          </SignedIn>
+          <div>
+            {/* Display authentication options dynamically */}
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton>
+                <button className="bg-blue-700 px-4 py-2 rounded text-white hover:bg-blue-800 transition">
+                  Sign In
+                </button>
+              </SignInButton>
+            </SignedOut>
+          </div>
         </nav>
       </div>
     </header>

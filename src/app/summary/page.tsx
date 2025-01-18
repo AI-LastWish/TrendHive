@@ -1,4 +1,5 @@
 import SummaryFilterWrapper from "@/components/SummaryFilterWrapper";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 interface Post {
   id: string;
@@ -33,8 +34,23 @@ const SummaryPage = async () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Top 10 Posts Summary</h1>
-      <SummaryFilterWrapper summaries={summaries} />
+      <SignedIn>
+        <h1 className="text-2xl font-bold mb-4">Top 10 Posts Summary</h1>
+        <SummaryFilterWrapper summaries={summaries} />
+      </SignedIn>
+      <SignedOut>
+        <div className="flex flex-col items-center justify-center h-screen text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="text-gray-700 mb-4">
+            You need to be signed in to view this page.
+          </p>
+          <SignInButton>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+              Sign In
+            </button>
+          </SignInButton>
+        </div>
+      </SignedOut>
     </div>
   );
 };

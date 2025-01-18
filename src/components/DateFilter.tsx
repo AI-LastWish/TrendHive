@@ -12,6 +12,7 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { useSearchParams, useRouter } from "next/navigation";
+import { SignedIn } from "@clerk/nextjs";
 
 interface Post {
   id: string;
@@ -125,34 +126,36 @@ const DateFilter = () => {
 
   return (
     <div className="flex flex-col space-y-4">
-      {/* Search and Date Filter Controls */}
-      <div className="flex items-center space-x-4">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setPage(0); // Reset to the first page on a new search
-          }}
-          placeholder="Search posts"
-          className="border border-gray-300 p-2 rounded flex-grow"
-        />
-        <DatePicker
-          selectsRange
-          startDate={startDate}
-          endDate={endDate}
-          onChange={(update) => {
-            setDateRange(update);
-            setPage(0); // Reset to the first page on a date change
-          }}
-          isClearable
-          placeholderText="Select date range"
-          className="border border-gray-300 p-2 rounded"
-        />
-        <Link href="/summary" className="p-2 bg-green-500 text-white rounded">
-          View Summary
-        </Link>
-      </div>
+      {/* Search and Date Filter Controls (Visible to Signed-In Users) */}
+      <SignedIn>
+        <div className="flex items-center space-x-4">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(0); // Reset to the first page on a new search
+            }}
+            placeholder="Search posts"
+            className="border border-gray-300 p-2 rounded flex-grow"
+          />
+          <DatePicker
+            selectsRange
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(update) => {
+              setDateRange(update);
+              setPage(0); // Reset to the first page on a date change
+            }}
+            isClearable
+            placeholderText="Select date range"
+            className="border border-gray-300 p-2 rounded"
+          />
+          <Link href="/summary" className="p-2 bg-green-500 text-white rounded">
+            View Summary
+          </Link>
+        </div>
+      </SignedIn>
 
       {/* Table to Display Results */}
       <div className="overflow-x-auto">
