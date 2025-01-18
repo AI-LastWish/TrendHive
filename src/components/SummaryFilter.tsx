@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-interface Post {
+export interface Post {
   id: string;
   url: string;
   title: string;
@@ -11,7 +11,7 @@ interface Post {
   author: string;
 }
 
-interface Summary {
+export interface Summary {
   date: string;
   topPosts: Post[];
   summary: string; // ChatGPT-generated summary
@@ -23,18 +23,15 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
   const itemsPerPage = 1; // Number of summaries per page
   const totalPages = Math.ceil(summaries.length / itemsPerPage);
 
-  // Get the current page from the URL or default to 1
   const initialPage = parseInt(searchParams.get("page") || "1", 10) - 1; // Convert to 0-based index
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   useEffect(() => {
-    // Update the URL whenever the page changes
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", (currentPage + 1).toString()); // Store 1-based page in URL
     router.push(`?${params.toString()}`);
   }, [currentPage, router, searchParams]);
 
-  // Calculate the summaries for the current page
   const currentSummaries = summaries.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
@@ -43,7 +40,6 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
   const renderPageNumbers = () => {
     const pages = [];
     for (let i = 0; i < totalPages; i++) {
-      // Add the first, last, and nearby pages, and use "..." for gaps
       if (i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1) {
         pages.push(
           <button
@@ -53,7 +49,7 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
               i === currentPage ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
           >
-            {i + 1} {/* Convert back to 1-based index for display */}
+            {i + 1}
           </button>
         );
       } else if (pages[pages.length - 1]?.key !== "ellipsis-" + i) {

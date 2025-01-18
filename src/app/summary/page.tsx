@@ -1,4 +1,4 @@
-import SummaryFilter from "@/components/SummaryFilter";
+import SummaryFilterWrapper from "@/components/SummaryFilterWrapper";
 
 interface Post {
   id: string;
@@ -34,7 +34,7 @@ const SummaryPage = async () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Top 10 Posts Summary</h1>
-      <SummaryFilter summaries={summaries} />
+      <SummaryFilterWrapper summaries={summaries} />
     </div>
   );
 };
