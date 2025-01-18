@@ -1,3 +1,5 @@
+import SummaryFilter from "@/components/SummaryFilter";
+
 interface Post {
   id: string;
   url: string;
@@ -26,30 +28,13 @@ const SummaryPage = async () => {
 
   const summaries: Summary[] = result.summary || [];
 
+  // Sort summaries by date in descending order
+  summaries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Top 10 Posts Summary</h1>
-      {summaries.map(({ date, topPosts, summary: chatGPTSummary }) => (
-        <div key={date} className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">{date}</h2>
-          <p className="text-gray-700 mb-4">{chatGPTSummary}</p> {/* Display ChatGPT summary */}
-          <ul className="list-disc pl-5">
-            {topPosts.map((post) => (
-              <li key={post.id}>
-                <a
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500"
-                >
-                  {post.title}
-                </a>{" "}
-                - Score: {post.score}, Author: {post.author}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <SummaryFilter summaries={summaries} />
     </div>
   );
 };
