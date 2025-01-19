@@ -1,5 +1,6 @@
 import SummaryFilterWrapper from "@/components/SummaryFilterWrapper";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import CurrentPageDownloadButton from "@/components/CurrentPageDownloadButton";
 
 interface Post {
   id: string;
@@ -35,7 +36,11 @@ const SummaryPage = async () => {
   return (
     <div className="container mx-auto p-4">
       <SignedIn>
-        <h1 className="text-2xl font-bold mb-4">Top 10 Posts Summary</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Top 10 Posts related to Singapore Summary</h1>
+          {/* Pass all summaries to the client component */}
+          <CurrentPageDownloadButton summaries={summaries} />
+        </div>
         <SummaryFilterWrapper summaries={summaries} />
       </SignedIn>
       <SignedOut>

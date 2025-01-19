@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Link from "next/link";
 import { useDebounce } from "use-debounce";
 import {
   useReactTable,
@@ -13,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SignedIn } from "@clerk/nextjs";
+import { Spinner } from "./Spinner";
 
 interface Post {
   id: string;
@@ -28,22 +28,19 @@ const DateFilter = () => {
   const searchParams = useSearchParams();
 
   const [data, setData] = useState<Post[]>([]);
-  const [query, setQuery] = useState(searchParams.get("query") || ""); // Get query from URL
-  const [debouncedQuery] = useDebounce(query, 300); // Debounced query
-  const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 10) - 1); // Convert 1-based page to 0-based index
-  const [hitsPerPage] = useState(10); // Items per page
-  const [totalPages, setTotalPages] = useState(0); // Total pages
+  const [query, setQuery] = useState(searchParams.get("query") || "");
+  const [debouncedQuery] = useDebounce(query, 300);
+  const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 10) - 1);
+  const [hitsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const [startDate, endDate] = dateRange;
 
-  // Update the URL whenever query or page changes
   useEffect(() => {
     const params = new URLSearchParams();
-
     if (debouncedQuery) params.set("query", debouncedQuery);
-    params.set("page", (page + 1).toString()); // Convert 0-based index to 1-based for URL
-
+    params.set("page", (page + 1).toString());
     router.replace(`?${params.toString()}`);
   }, [debouncedQuery, page]);
 
@@ -60,12 +57,8 @@ const DateFilter = () => {
         hitsPerPage: hitsPerPage.toString(),
       });
 
-      if (startDate) {
-        params.append("startDate", startDate.toISOString());
-      }
-      if (endDate) {
-        params.append("endDate", endDate.toISOString());
-      }
+      if (startDate) params.append("startDate", startDate.toISOString());
+      if (endDate) params.append("endDate", endDate.toISOString());
 
       const response = await fetch(`/api/getPosts?${params}`);
       const result = await response.json();
@@ -83,7 +76,17 @@ const DateFilter = () => {
     }
   };
 
-  // Define columns for the table
+  const downloadData = () => {
+    const json = JSON.stringify(data, null, 2); // Convert data to JSON with indentation
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json"; // Set the file name
+    a.click();
+    URL.revokeObjectURL(url); // Revoke the URL to free up memory
+  };
+
   const columns: ColumnDef<Post>[] = [
     { accessorKey: "title", header: "Title" },
     { accessorKey: "url", header: "URL" },
@@ -92,41 +95,33 @@ const DateFilter = () => {
     { accessorKey: "author", header: "Author" },
   ];
 
-  // Initialize table instance
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Generate compact pagination numbers with ellipses
   const generatePagination = () => {
-    const maxVisiblePages = 5; // Number of visible pages around the current page
+    const maxVisiblePages = 5;
     const pages: (number | string)[] = [];
-
     if (totalPages <= maxVisiblePages) {
       for (let i = 0; i < totalPages; i++) {
         pages.push(i);
       }
     } else {
       if (page > 2) pages.push(0, "...");
-
       const start = Math.max(0, page - 1);
       const end = Math.min(totalPages - 1, page + 1);
-
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-
       if (page < totalPages - 3) pages.push("...", totalPages - 1);
     }
-
     return pages;
   };
 
   return (
     <div className="flex flex-col space-y-4">
-      {/* Search and Date Filter Controls (Visible to Signed-In Users) */}
       <SignedIn>
         <div className="flex items-center space-x-4">
           <input
@@ -134,7 +129,7 @@ const DateFilter = () => {
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              setPage(0); // Reset to the first page on a new search
+              setPage(0);
             }}
             placeholder="Search posts"
             className="border border-gray-300 p-2 rounded flex-grow"
@@ -145,23 +140,25 @@ const DateFilter = () => {
             endDate={endDate}
             onChange={(update) => {
               setDateRange(update);
-              setPage(0); // Reset to the first page on a date change
+              setPage(0);
             }}
             isClearable
             placeholderText="Select date range"
             className="border border-gray-300 p-2 rounded"
           />
-          <Link href="/summary" className="p-2 bg-green-500 text-white rounded">
-            View Summary
-          </Link>
+          <button
+            onClick={downloadData}
+            className="p-2 bg-blue-500 text-white rounded"
+          >
+            Download JSON
+          </button>
         </div>
       </SignedIn>
 
-      {/* Table to Display Results */}
       <div className="overflow-x-auto">
         <h3 className="text-lg font-semibold mb-2">Results</h3>
         {loading ? (
-          <div>Loading...</div>
+          <Spinner />
         ) : (
           <table className="min-w-full border-collapse border border-gray-200">
             <thead>
@@ -192,7 +189,6 @@ const DateFilter = () => {
         )}
       </div>
 
-      {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <button
           onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
@@ -211,9 +207,8 @@ const DateFilter = () => {
               <button
                 key={index}
                 onClick={() => setPage(item)}
-                className={`p-2 rounded ${
-                  item === page ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
+                className={`p-2 rounded ${item === page ? "bg-blue-500 text-white" : "bg-gray-200"
+                  }`}
               >
                 {item + 1}
               </button>

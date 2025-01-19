@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Spinner } from "./Spinner";
 
 export interface Post {
   id: string;
@@ -25,6 +26,7 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
 
   const initialPage = parseInt(searchParams.get("page") || "1", 10) - 1; // Convert to 0-based index
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -37,6 +39,14 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
     (currentPage + 1) * itemsPerPage
   );
 
+  const handlePageChange = (page: number) => {
+    setLoading(true); // Start loading
+    setTimeout(() => {
+      setCurrentPage(page);
+      setLoading(false); // Stop loading after simulating data fetch
+    }, 500); // Simulate loading delay
+  };
+
   const renderPageNumbers = () => {
     const pages = [];
     for (let i = 0; i < totalPages; i++) {
@@ -44,7 +54,7 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
         pages.push(
           <button
             key={i}
-            onClick={() => setCurrentPage(i)}
+            onClick={() => handlePageChange(i)}
             className={`p-2 rounded ${
               i === currentPage ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
@@ -65,7 +75,7 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
 
   return (
     <div>
-      {currentSummaries.map(({ date, topPosts, summary: chatGPTSummary }) => (
+      {loading ? <Spinner /> : currentSummaries.map(({ date, topPosts, summary: chatGPTSummary }) => (
         <div key={date} className="mb-8">
           <h2 className="text-xl font-semibold mb-2">{date}</h2>
           <p className="text-gray-700 mb-4">{chatGPTSummary}</p>
@@ -90,7 +100,7 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+          onClick={() => handlePageChange(Math.max(currentPage - 1, 0))}
           disabled={currentPage === 0}
           className="p-2 bg-gray-200 rounded disabled:opacity-50"
         >
@@ -98,7 +108,7 @@ const SummaryFilter = ({ summaries }: { summaries: Summary[] }) => {
         </button>
         <div className="flex space-x-2">{renderPageNumbers()}</div>
         <button
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+          onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages - 1))}
           disabled={currentPage === totalPages - 1}
           className="p-2 bg-gray-200 rounded disabled:opacity-50"
         >
