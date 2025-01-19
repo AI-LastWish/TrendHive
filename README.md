@@ -6,7 +6,7 @@ This web application allows users to:
 - Filter a dataset of posts by date range using a date picker.
 - Search for posts dynamically using a search bar with debounced input handling.
 - Display the filtered results dynamically in a responsive table with pagination controls.
-- View a summarized analysis of the data on a separate page, leveraging the **ChatGPT API** to generate concise, human-readable summaries for the top 10 posts of each day.
+- View a summarized analysis of the data on a separate page, leveraging the **ChatGPT API** to generate concise, human-readable summaries for the top 10 posts related to Singapore of each day.
 - Navigate and interact with the application using a responsive header and footer layout.
 - Authenticate seamlessly using **Clerk** for user sign-in and account management.
 - Get real-time feedback with a **loading spinner** during data fetch operations.
